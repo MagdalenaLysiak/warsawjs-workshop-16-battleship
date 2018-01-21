@@ -10,6 +10,7 @@ body {
     justify-content: space-around;
 }
 .notification {
+    height: 15px;
     color: yellowgreen;
     border: 1px solid yellowgreen;
     position: relative;

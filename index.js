@@ -68,9 +68,10 @@ const gameboardArray = [
     }
 
     class Cell extends BaseElement{
-        constructor({isShip}) {
+        constructor({isShip, gameboard}) {
             super();
             this.isShip = isShip;
+            this.gameboard = gameboard;
             this.state = 'unknown';
             this.onClick = this.fireTorpedo;
         }
@@ -88,9 +89,30 @@ const gameboardArray = [
         }
 
         fireTorpedo(){
+            this.gameboard.totalClicks += 1;
+            if (this.gameboard.totalClicks > 30){
+                alert("Game Over");
+            }
             if(this.isShip) {
+                if(this.state !== 'unknown') {
+                   return false;
+                }
+                this.gameboard.score += 1;
+
+                while (gameResult.firstChild){
+                    gameResult.removeChild(gameResult.firstChild)
+                }
+
+                gameResult.append(`${this.gameboard.score}/${this.gameboard.totalScore}/${this.gameboard.totalClicks}`)
+
                 this.setState('hit');
             } else {
+                while (gameResult.firstChild){
+                    gameResult.removeChild(gameResult.firstChild)
+                }
+
+                gameResult.append(`${this.gameboard.score}/${this.gameboard.totalScore}/${this.gameboard.totalClicks}`)
+
                 this.setState('miss');
             }
         }
@@ -106,34 +128,38 @@ const gameboardArray = [
     }
 
     class Gameboard extends BaseElement {
-        contructor(size) {
-            console.log('new gameboard')
-            //super();
+        constructor(size) {
+
+            super();
             this.cells = [];
             this.rowNumber = size;
             this.columnNumber = size;
             this.fleet = gameboardArray[Math.floor(Math.random() * gameboardArray.length)];
             this.score = 0;
             this.totalScore = this.getTotalScore(this.fleet);
+            this.totalClicks = 0;
 
             for(let rowIndex = 0; rowIndex <this.rowNumber; ++rowIndex) {
                 for(let columnIndex = 0; columnIndex < this.columnNumber; ++columnIndex){
                     this.cells.push(new Cell({
-                    isShip: this.fleet.array[rowIndex][columnIndex] === 1 ? true : false
+                    isShip: this.fleet.array[rowIndex][columnIndex] === 1 ? true : false,
+                        gameboard: this
                     }));
                 }
             }
+            gameResult.append(`${this.score}/${this.totalScore}`);
         }
+
+
 
         createElement() {
             const gameboard = document.createElement('div');
             gameboard.className = 'gameboard';
-            console.log('123')
-            console.log(this.rowNumber)
+
             for(let rowIndex = 0; rowIndex < this.rowNumber; ++ rowIndex) {
                 const row = document.createElement('div');
                 row.className = 'board-row';
-                console.log('test');
+
 
                 for(let columnIndex = 0; columnIndex < this.columnNumber; ++columnIndex) {
                     const cell = this.cells[rowIndex * this.columnNumber + columnIndex];
